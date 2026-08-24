@@ -75,3 +75,23 @@ charParser = satisfy isDigit
 
 newParser :: Parser Int
 newParser = digitToInt `fmap` charParser
+
+
+instance Applicative Parser where
+  pure :: a -> Parser a
+  pure a = Parser $ \x -> Just (a , x)
+
+  (<*>) :: Parser (a -> b) -> Parser a -> Parser b
+  (<*>) p1 p2 = Parser $ \x -> case runParser p1 x of
+      Nothing -> Nothing
+      Just (f, rst) -> first f <$> runParser p2 rst
+
+
+data Employee = Employee String String
+  deriving (Show)
+
+nameParser = Parser (\x -> Just (take 3 x, x))
+phoneParser = Parser (\x -> Just (take 3 $ drop 3 x, x))
+
+
+employeeParser = Employee <$> nameParser <*> phoneParser
