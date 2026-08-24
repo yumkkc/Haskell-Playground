@@ -95,3 +95,28 @@ phoneParser = Parser (\x -> Just (take 3 $ drop 3 x, x))
 
 
 employeeParser = Employee <$> nameParser <*> phoneParser
+
+-- Exercise 3
+abParser :: Parser (Char, Char)
+abParser = (,) <$> char 'a' <*> char 'b'
+
+abParser_ :: Parser ()
+abParser_ = const () <$> abParser
+
+-- Exercise 4
+-- definition of alternative class
+-- class Applicative f => Alternative f where
+--    empty :: f a
+--    (<|>) :: f a -> f a -> f a
+
+instance Alternative Parser where
+  empty :: Parser a
+  empty = Parser $ const Nothing
+
+  (<|>) :: Parser a -> Parser a -> Parser a
+  (<|>) p1 p2 = Parser $ \x -> runParser p1 x <|> runParser p2 x
+
+
+-- Exercise 5
+intOrUppercase :: Parser ()
+intOrUppercase = (const () <$> posInt) <|> (const () <$> satisfy isUpper)
