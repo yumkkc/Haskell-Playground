@@ -19,6 +19,7 @@ instance Functor Parser where
     fmap :: (a -> b) -> Parser a -> Parser b
     fmap f p = Parser $ \cs -> map (applyFirst f) $ runParser p cs
 
+
             
 -- testing            
 checkDigitParser :: Parser Bool
@@ -37,3 +38,9 @@ checkDigitParser2 = pure isDigit <*> item
 -- we can see that checkDigitParser and checkDigitParse2 is same
 -- this is the law that applicative and functor needs to fulfill
 -- which is correct
+
+instance Monad Parser where
+    return = pure
+
+    (>>=) :: Parser a -> (a -> Parser b) -> Parser b
+    p1 >>= p2 = Parser $ \cs -> concatMap (\(v,rst) -> runParser (p2 v) rst) $ runParser p1 cs
